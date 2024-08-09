@@ -88,7 +88,7 @@ jobs:
           # yq e -i 'select(.value.name == "IMAGE_TAG_VERSION").value = env(IMAGE_TAG)' manifests/overlays/${{ inputs.environment }}/development-patch.yaml
           # git add manifests/overlays/${{ inputs.environment }}/development-patch.yaml
 
-          if [ "${{ inputs.environment }}" = 'tst' ]; then
+          if [ "${{ inputs.environment }}" == 'tst' ]; then
             yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/prd/kustomization.yaml
             git add manifests/overlays/prd/kustomization.yaml
 
