@@ -57,15 +57,6 @@
         - name: Extract branch name
           id: extract_branch
           run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-        
-        - name: Check if release tag is created and branch is not main
-          id: check_release_and_branch
-          run: |
-            if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' && "${{ steps.extract_branch.outputs.branch }}" != 'main' ]]; then
-              echo "run_release=true" >> $GITHUB_OUTPUT
-            else
-              echo "run_release=false" >> $GITHUB_OUTPUT
-            fi
   
         - name: Create PR promote image tag
           id: createPrId
@@ -97,7 +88,12 @@
             yq e -i '(.[] | select(.op == "add" and .value.name == "IMAGE_TAG_VERSION").value.value) = env(IMAGE_TAG)' manifests/overlays/${{ inputs.environment }}/development-patch.yaml
             git add manifests/overlays/${{ inputs.environment }}/development-patch.yaml
   
-            if [[ "${{ inputs.environment }}" == "tst" && "${{ steps.check_release_and_branch.outputs.run_release }}" == "true" ]]; then
+            if [ "${{ inputs.environment }}" == 'tst' ]; then
+              RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
+              echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
+              git checkout -b "$RELEASE_BRANCH"
+              
+
               yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/stg/kustomization.yaml
               git add manifests/overlays/stg/kustomization.yaml
 
@@ -111,6 +107,10 @@
               # Update the prd environment's development-patch.yaml file with the IMAGE_TAG_VERSION
               yq e -i '(.[] | select(.op == "add" and .value.name == "IMAGE_TAG_VERSION").value.value) = env(IMAGE_TAG)' manifests/overlays/prd/development-patch.yaml
               git add manifests/overlays/prd/development-patch.yaml
+
+              git push origin "$RELEASE_BRANCH"
+              git restore --staged manifests/overlays/stg manifests/overlays/prd
+              git checkout "$NEW_BRANCH"
             fi
             
             numOfFilesChanged=$( git diff --name-only origin/${{ steps.extract_branch.outputs.branch }} | wc -l )
@@ -144,7 +144,7 @@
           id: semantic
           with:
             semantic_version: 24.0.0
-            branch: ${{ steps.extract_branch.outputs.branch }}
+            branch: ${{ steps.createPrId.outputs.release_branch }}
             extra_plugins: |
               "@semantic-release/github"
               "@semantic-release/changelog"
@@ -152,6 +152,15 @@
               "@semantic-release/exec"
           env:
             GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
+
+        - name: 'Cleanup Release'
+          if: ${{ inputs.environment == 'tst' }}
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            RELEASE_BRANCH: ${{ steps.createPrId.outputs.release_branch }}
+          run: |
+            git branch -d "$RELEASE_BRANCH"
+            git push origin --delete "$RELEASE_BRANCH"
   
         - name: Determine target revision
           id: determine_revision
