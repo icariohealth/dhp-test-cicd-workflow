@@ -89,7 +89,7 @@
             git add manifests/overlays/${{ inputs.environment }}/development-patch.yaml
   
             if [ "${{ inputs.environment }}" == 'tst' ]; then
-              RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
+              RELEASE_BRANCH="next"
               echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
               git checkout -b "$RELEASE_BRANCH"
               
