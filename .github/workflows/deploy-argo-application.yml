@@ -97,7 +97,7 @@
             yq e -i '(.[] | select(.op == "add" and .value.name == "IMAGE_TAG_VERSION").value.value) = env(IMAGE_TAG)' manifests/overlays/${{ inputs.environment }}/development-patch.yaml
             git add manifests/overlays/${{ inputs.environment }}/development-patch.yaml
   
-            if [[ ${{ inputs.environment == 'tst' && steps.check_release_and_branch.outputs.run_release == 'true' }} ]]; then
+            if [[ "${{ inputs.environment }}" == "tst" && "${{ steps.check_release_and_branch.outputs.run_release }}" == "true" ]]; then
               yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/stg/kustomization.yaml
               git add manifests/overlays/stg/kustomization.yaml
 
