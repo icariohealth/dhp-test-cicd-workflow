@@ -117,7 +117,7 @@
           if: ${{ inputs.environment == 'tst' }}
           uses: actions/checkout@v4
           with:
-            persist-credentials: false
+            token: ${{ secrets.PAT }}
         - name: Prepare release
           id: prepareRelId
           if: ${{ inputs.environment == 'tst' }}
