@@ -139,11 +139,13 @@
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
         - name: Check out release branch
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            RELEASE_BRANCH: ${{ steps.createPrId.outputs.release_branch }}
           if: ${{ inputs.environment == 'tst' }}
-          uses: actions/checkout@v4
-          with:
-            ref: ${{ steps.createPrId.outputs.release_branch }}
-            fetch-depth: 0
+          run: |
+            git fetch origin $RELEASE_BRANCH:$RELEASE_BRANCH
+            git checkout $RELEASE_BRANCH
 
         - name: 'Release'
           if: ${{ inputs.environment == 'tst' }}
