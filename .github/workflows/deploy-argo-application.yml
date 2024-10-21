@@ -143,6 +143,7 @@
           uses: actions/checkout@v4
           with:
             ref: ${{ steps.createPrId.outputs.release_branch }}
+            fetch-depth: 0
 
         - name: 'Release'
           if: ${{ inputs.environment == 'tst' }}
