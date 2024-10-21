@@ -137,19 +137,14 @@
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
-        - name: Check out release branch
-          env:
-            RELEASE_BRANCH: ${{ steps.createPrId.outputs.release_branch }}
-          if: ${{ inputs.environment == 'tst' }}
-          run: echo "GITHUB_REF=refs/heads/$RELEASE_BRANCH" >> $GITHUB_ENV
-
         - name: 'Release'
           if: ${{ inputs.environment == 'tst' }}
           uses: 'cycjimmy/semantic-release-action@v4'
           id: semantic
           with:
             semantic_version: 24.0.0
-            branch: ${{ steps.createPrId.outputs.release_branch }}
+            branch: ${{ steps.extract_branch.outputs.branch }}
+            dry_run: true
             extra_plugins: |
               "@semantic-release/github"
               "@semantic-release/changelog"
@@ -157,16 +152,6 @@
               "@semantic-release/exec"
           env:
             GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
-
-        - name: 'Cleanup Release'
-          if: ${{ inputs.environment == 'tst' }}
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            RELEASE_BRANCH: ${{ steps.createPrId.outputs.release_branch }}
-          run: |
-            git checkout main
-            git branch -D "$RELEASE_BRANCH"
-            git push origin --delete "$RELEASE_BRANCH"
   
         - name: Determine target revision
           id: determine_revision
