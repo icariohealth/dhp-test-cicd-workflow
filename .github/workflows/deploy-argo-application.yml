@@ -114,11 +114,18 @@
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
+        - name: Check out release
+          if: ${{ inputs.environment == 'tst' }}
+          uses: actions/checkout@v4
+          with:
+            persist-credentials: false
+            token: ${{ secrets.GH_PAT }}
+
         - name: Prepare release
           id: prepare_rel_id
           if: ${{ inputs.environment == 'tst' }}
           env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GH_PAT }}
             KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
             SERVICE_NAME: ${{ inputs.service_name }}
             IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
