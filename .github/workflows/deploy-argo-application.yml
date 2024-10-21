@@ -111,7 +111,7 @@
         - name: Merge PR
           continue-on-error: true
           env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN   }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NEW_BRANCH: ${{ steps.createPrId.outputs.NEW_BRANCH }}
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
@@ -120,7 +120,6 @@
           if: ${{ inputs.environment == 'tst' }}
           uses: actions/checkout@v4
           with:
-            persist-credentials: false
             token: ${{ secrets.GH_PAT }}
 
         - name: Prepare release
