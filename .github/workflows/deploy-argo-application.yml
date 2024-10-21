@@ -200,6 +200,7 @@
                 sleep $SLEEP_SECONDS
               fi
             done
+            exit 1
   
         - name: Mute Monitors
           continue-on-error: true  
