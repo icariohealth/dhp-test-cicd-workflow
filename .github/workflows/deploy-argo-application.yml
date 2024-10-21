@@ -74,6 +74,7 @@
             export NEW_BRANCH=${{ inputs.environment }}/$calculatedSha
             echo "NEW_BRANCH=$NEW_BRANCH" >> $GITHUB_OUTPUT
             export IMAGE_TAG=$SERVICE_NAME-$calculatedSha
+            echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
             
             # create a new branch
             git pull origin ${{ steps.extract_branch.outputs.branch }}
@@ -120,6 +121,7 @@
             GITHUB_TOKEN: ${{ secrets.PAT }}
             KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
             SERVICE_NAME: ${{ inputs.service_name }}
+            IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
           run: |
             RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
             git checkout -b "$RELEASE_BRANCH"
