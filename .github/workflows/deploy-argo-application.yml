@@ -92,7 +92,6 @@
               RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
               echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
               git checkout -b "$RELEASE_BRANCH"
-              
 
               yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/stg/kustomization.yaml
               git add manifests/overlays/stg/kustomization.yaml
@@ -107,9 +106,9 @@
               # Update the prd environment's development-patch.yaml file with the IMAGE_TAG_VERSION
               yq e -i '(.[] | select(.op == "add" and .value.name == "IMAGE_TAG_VERSION").value.value) = env(IMAGE_TAG)' manifests/overlays/prd/development-patch.yaml
               git add manifests/overlays/prd/development-patch.yaml
-
+              
+              git commit -m "$RELEASE_BRANCH"
               git push origin "$RELEASE_BRANCH"
-              git restore --staged manifests/overlays/stg manifests/overlays/prd
               git checkout "$NEW_BRANCH"
             fi
             
