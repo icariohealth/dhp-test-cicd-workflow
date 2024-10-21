@@ -158,7 +158,7 @@
             if git show-ref --verify --quiet refs/heads/"$RELEASE_BRANCH"; then
               git checkout "$RELEASE_BRANCH"
               git pull origin "$RELEASE_BRANCH"
-              git merge main
+              git merge main --no-edit
             else
               git checkout -b "$RELEASE_BRANCH"
             fi
