@@ -129,6 +129,10 @@
             SERVICE_NAME: ${{ inputs.service_name }}
             IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
           run: |
+            # configure git client
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+
             RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
             echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
             git checkout -b "$RELEASE_BRANCH"
