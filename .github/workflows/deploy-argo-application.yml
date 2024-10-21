@@ -146,6 +146,7 @@
             KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
             SERVICE_NAME: ${{ inputs.service_name }}
             IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
+            NEW_RELEASE_VERSION: steps.semantic.outputs.new_release_git_tag
           run: |
             # configure git client
             git config user.name github-actions
@@ -169,7 +170,7 @@
             yq e -i '(.[] | select(.op == "add" and .value.name == "IMAGE_TAG_VERSION").value.value) = env(IMAGE_TAG)' manifests/overlays/prd/development-patch.yaml
             git add manifests/overlays/prd/development-patch.yaml
             
-            git commit -m "$RELEASE_BRANCH"
+            git commit -m "$NEW_RELEASE_VERSION"
             git push -u origin "$RELEASE_BRANCH"
   
         - name: Determine target revision
