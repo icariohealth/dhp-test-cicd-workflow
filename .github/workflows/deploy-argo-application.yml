@@ -152,9 +152,15 @@
             git config user.name github-actions
             git config user.email github-actions@github.com
 
-            RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
+            RELEASE_BRANCH="next"
             echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
-            git checkout -b "$RELEASE_BRANCH"
+
+            if git show-ref --verify --quiet refs/heads/"$RELEASE_BRANCH"; then
+              git checkout "$RELEASE_BRANCH"
+              git merge main
+            else
+              git checkout -b "$RELEASE_BRANCH"
+            fi
 
             yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/stg/kustomization.yaml
             git add manifests/overlays/stg/kustomization.yaml
