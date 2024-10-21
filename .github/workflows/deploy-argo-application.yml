@@ -156,6 +156,7 @@
             echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
 
             if git ls-remote --heads origin "$RELEASE_BRANCH"; then
+              git fetch origin
               git checkout "$RELEASE_BRANCH"
               git merge main --no-edit
             else
