@@ -113,13 +113,8 @@
             NEW_BRANCH: ${{ steps.createPrId.outputs.NEW_BRANCH }}
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
-        - name: Checkout with PAT
-          if: ${{ inputs.environment == 'tst' }}
-          uses: actions/checkout@v4
-          with:
-            token: ${{ secrets.PAT }}
+
         - name: Prepare release
-          id: prepareRelId
           if: ${{ inputs.environment == 'tst' }}
           env:
             GITHUB_TOKEN: ${{ secrets.PAT }}
@@ -127,9 +122,6 @@
             SERVICE_NAME: ${{ inputs.service_name }}
             IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
           run: |
-            git config user.name personal-actions
-            git config user.email personal-actions@github.com
-
             RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
             git checkout -b "$RELEASE_BRANCH"
 
