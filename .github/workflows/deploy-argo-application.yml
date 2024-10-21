@@ -146,7 +146,7 @@
             KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
             SERVICE_NAME: ${{ inputs.service_name }}
             IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
-            NEW_RELEASE_VERSION: steps.semantic.outputs.new_release_git_tag
+            NEW_RELEASE_VERSION: ${{ steps.semantic.outputs.new_release_git_tag }}
           run: |
             # configure git client
             git config user.name github-actions
