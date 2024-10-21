@@ -158,7 +158,7 @@
             if git ls-remote --heads origin "$RELEASE_BRANCH"; then
               git fetch origin
               git checkout "$RELEASE_BRANCH"
-              git merge main --no-edit
+              git merge main --no-edit --allow-unrelated-histories
             else
               git checkout -b "$RELEASE_BRANCH"
             fi
