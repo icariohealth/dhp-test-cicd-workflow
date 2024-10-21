@@ -114,9 +114,9 @@
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
         - name: Checkout with PAT
+          if: ${{ inputs.environment == 'tst' }}
           uses: actions/checkout@v4
           with:
-            token: ${{ secrets.PAT }}
             persist-credentials: false
         - name: Prepare release
           id: prepareRelId
