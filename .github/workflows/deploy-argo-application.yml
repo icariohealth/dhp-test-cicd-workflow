@@ -116,6 +116,22 @@
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
+        - name: 'Dry-run Release'
+          if: ${{ inputs.environment == 'tst' }}
+          uses: 'cycjimmy/semantic-release-action@v4'
+          id: semantic
+          with:
+            semantic_version: 24.0.0
+            branch: ${{ steps.extract_branch.outputs.branch }}
+            dry_run: true
+            extra_plugins: |
+              "@semantic-release/github"
+              "@semantic-release/changelog"
+              "@semantic-release/git"
+              "@semantic-release/exec"
+          env:
+            GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
+
         - name: Check out release
           if: ${{ inputs.environment == 'tst' }}
           uses: actions/checkout@v4
@@ -155,22 +171,6 @@
             
             git commit -m "$RELEASE_BRANCH"
             git push -u origin "$RELEASE_BRANCH"
-
-        - name: 'Release'
-          if: ${{ inputs.environment == 'tst' }}
-          uses: 'cycjimmy/semantic-release-action@v4'
-          id: semantic
-          with:
-            semantic_version: 24.0.0
-            branch: ${{ steps.extract_branch.outputs.branch }}
-            dry_run: true
-            extra_plugins: |
-              "@semantic-release/github"
-              "@semantic-release/changelog"
-              "@semantic-release/git"
-              "@semantic-release/exec"
-          env:
-            GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
   
         - name: Determine target revision
           id: determine_revision
