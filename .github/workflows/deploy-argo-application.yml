@@ -140,7 +140,7 @@
 
         - name: Prepare release
           id: prepare_rel_id
-          if: ${{ inputs.environment == 'tst' }}
+          if: ${{ inputs.environment == 'tst' && steps.semantic.outputs.new_release_published == 'true' }}
           env:
             GITHUB_TOKEN: ${{ secrets.GH_PAT }}
             KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
@@ -182,6 +182,23 @@
             else
               echo "target_revision=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_OUTPUT
             fi
+
+        - name: Wait for the release
+          if: ${{ inputs.environment == 'tst' && steps.semantic.outputs.new_release_published == 'true' }}
+          run: |
+            TAG_NAME=${{ steps.semantic.outputs.new_release_git_tag }}
+            SLEEP_SECONDS=5
+            MAX_RETRIES=360
+            for ((i=0;i<MAX_RETRIES;i++)); do
+              # Check if the tag exists
+              if git fetch --tags && git tag | grep -x "$TAG_NAME"; then
+                echo "Tag $TAG_NAME exists!"
+                exit 0
+              else
+                echo "Tag $TAG_NAME not found. Retrying in $SLEEP_SECONDS seconds..."
+                sleep $SLEEP_SECONDS
+              fi
+            done
   
         - name: Mute Monitors
           continue-on-error: true  
