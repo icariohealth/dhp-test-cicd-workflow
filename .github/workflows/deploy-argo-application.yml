@@ -170,7 +170,7 @@
               "@semantic-release/git"
               "@semantic-release/exec"
           env:
-            GITHUB_TOKEN: '${{ secrets.PAT  }}'
+            GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
   
         - name: Determine target revision
           id: determine_revision
