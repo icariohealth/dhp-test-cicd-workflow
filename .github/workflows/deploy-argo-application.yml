@@ -154,7 +154,7 @@
             git add manifests/overlays/prd/development-patch.yaml
             
             git commit -m "$RELEASE_BRANCH"
-            git push origin "$RELEASE_BRANCH"
+            git push -u origin "$RELEASE_BRANCH"
 
         - name: 'Release'
           if: ${{ inputs.environment == 'tst' }}
