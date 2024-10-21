@@ -114,15 +114,23 @@
           run: |
             gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
+        - name: Check out release
+          if: ${{ inputs.environment == 'tst' }}
+          uses: actions/checkout@v4
+          with:
+            persist-credentials: false
+
         - name: Prepare release
+          id: prepare_rel_id
           if: ${{ inputs.environment == 'tst' }}
           env:
-            GITHUB_TOKEN: ${{ secrets.PAT }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
             SERVICE_NAME: ${{ inputs.service_name }}
             IMAGE_TAG: ${{ steps.createPrId.outputs.IMAGE_TAG }}
           run: |
             RELEASE_BRANCH="release-$(date +%Y%m%d%H%M%S)"
+            echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
             git checkout -b "$RELEASE_BRANCH"
 
             yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/stg/kustomization.yaml
@@ -148,7 +156,7 @@
           id: semantic
           with:
             semantic_version: 24.0.0
-            branch: ${{ steps.extract_branch.outputs.branch }}
+            branch: ${{ steps.prepare_rel_id.outputs.release_branch }}
             dry_run: true
             extra_plugins: |
               "@semantic-release/github"
@@ -156,7 +164,7 @@
               "@semantic-release/git"
               "@semantic-release/exec"
           env:
-            GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
+            GITHUB_TOKEN: '${{ secrets.PAT  }}'
   
         - name: Determine target revision
           id: determine_revision
