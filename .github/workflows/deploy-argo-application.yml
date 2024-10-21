@@ -23,6 +23,8 @@
           required: true
         DD_MONITOR_APP_KEY:
           required: true
+        GH_PAT:
+          required: false
       outputs:
         semantic_new_release_version:
           description: the semantic release version
